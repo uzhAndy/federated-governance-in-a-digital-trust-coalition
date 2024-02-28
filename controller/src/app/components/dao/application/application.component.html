@@ -1,0 +1,57 @@
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-4"><h4>Applier:</h4></div>
+            <div class="col-8"><h4>{{this.application.applier.companyName}}</h4></div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-4">Website:</div>
+            <div class="col-8">
+                <a href="https://{{this.application.applier.companyDomain}}" target="_blank">{{this.application.applier.companyDomain}}</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">Contact Person:</div>
+            <div class="col-4">{{this.application.applier.contactPersonFirstname + " " +
+                this.application.applier.contactPersonLastname}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4"></div>
+            <div class="col-4"><a href="mailto:{{this.application.applier.contactPersonEmail}}">email</a></div>
+        </div>
+        <div class="row">
+            <div class="col-4">Yes Votes:</div>
+            <div class="col-8">{{this.application.yesVotes}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">No Votes:</div>
+            <div class="col-8">{{this.application.noVotes}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Members with votes:</div>
+            <div class="col-8">{{this.application.membersCount}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Application Time:</div>
+            <div class="col-8">{{formatDate(this.application.applicationTime)}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Application End:</div>
+            <div class="col-8">{{formatDate(this.application.applicationTimeEnd)}}</div>
+        </div>
+        
+    </div>
+    <div class="card-footer">
+        <div class="row">
+            <div class="col-4">Vote</div>
+            <div class="col-4">
+                <button class="btn btn-success" [disabled]="!this.activeApplication()" type="button" (click)="this.supportApplication()">Yes</button>
+            </div>
+            <div class="col-4">
+                <button class="btn btn-warning" [disabled]="!this.activeApplication()" type="button" (click)="this.rejectApplication()">No</button>
+            </div>
+        </div>
+    </div>
+</div>

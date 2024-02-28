@@ -1,0 +1,135 @@
+<div class="container fixed-bottom bg-dark" style="padding-bottom: 12px; padding-top: 8px;">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestMembershipModal">Request
+        Memberships</button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="requestMembershipModal" tabindex="-1" aria-labelledby="requestMembershipModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="requestMembershipModalLabel">Membership Request From</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body m-4" *ngIf="!this.isLoading()">
+                <form [formGroup]="companyForm">
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <small>Company Name</small>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" id="companyName" formControlName="companyName" width="90%"
+                                [ngClass]="{'invalid-field': isInvalidField(this.companyForm.get('companyName'))}">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <small>Company Domain</small>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" id="compfoanyDomain" formControlName="companyDomain" width="90%" (blur)="this.checkDomainReputation()"
+                                [ngClass]="{'invalid-field': isInvalidField(this.companyForm.get('companyDomain'))}">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <small>Contact Person Firstname</small>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" id="contactPersonFirstname" formControlName="contactPersonFirstname" width="90%"
+                                [ngClass]="{'invalid-field': isInvalidField(this.companyForm.get('contactPersonFirstname'))}">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <small>Contact Person Lastname</small>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" id="contactPersonLastname" formControlName="contactPersonLastname" width="90%"
+                                [ngClass]="{'invalid-field': isInvalidField(this.companyForm.get('contactPersonLastname'))}">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <small>Contact Person Email</small>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" id="contactPersonEmail" formControlName="contactPersonEmail" width="90%"
+                                [ngClass]="{'invalid-field': isInvalidField(this.companyForm.get('contactPersonEmail'))}">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <small>Credential Defintion</small>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" id="credentialDefinition" formControlName="credentialDefinition" width="90%"
+                                [ngClass]="{'invalid-field': isInvalidField(this.companyForm.get('credentialDefinition'))}">
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <small>Wallet Address</small>
+                        </div>
+                        <div class="col-8">
+                            <input type="text" id="walletAddress" formControlName="walletAddress" width="90%"
+                                [ngClass]="{'invalid-field': isInvalidField(this.companyForm.get('walletAddress'))}">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" *ngIf="this.acceleratedAvailable" (click)="this.submitApplication(true)" class="btn btn-primary">Accelerated
+                            Onboarding</button>
+                        <button type="button" (click)="this.submitApplication()" class="btn btn-primary">Submit</button>
+                        <button type="button" class="btn btn-secondary close" data-bs-dismiss="modal" #closeModal
+                            (click)="resetForm()">Close</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-body m-4" *ngIf="this.isAcceleratedOnboarding()">
+                <form [formGroup]="challengeForm">
+
+                    <div class="row mb-4">
+                        <div class="col-4">Cipher Text</div>
+                        <div class="col-8"><pre>{{this.challenge.cipher_text}}</pre></div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4">Note</div>
+                        <div class="col-8">{{this.challenge.note}}</div>
+                    </div>
+                    <div class="row mb-4" *ngIf="this.challenge.method === 'ECDH'">
+                        <div class="col-4">Encryptor Public Key:</div>
+                        <div class="col-8"><pre>{{this.getKey(keyType.ECDH_ENCRYPTOR_PUB_KEY)}}</pre></div>
+                    </div>
+                    <div class="row mb-4" *ngIf="this.challenge.method === 'ECDH'">
+                        <div class="col-4">Decryptor Public Key:</div>
+                        <div class="col-8"><pre>{{this.getKey(keyType.ECDH_DECRYPTOR_PUB_KEY)}}</pre></div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            Decrypted Passphrase
+                        </div>
+                        <div class="col-8">
+                            <textarea id="answer" formControlName="answer" rows="4" cols="50"
+                                [ngClass]="{'invalid-field': isInvalidField(this.challengeForm.get('answer'))}"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" (click)="this.submitChallenge()" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-body" *ngIf="this.displayLoading()">
+                <div class="d-flex justify-content-center mb-4">Submitted Request... Please Wait</div>
+                <div class="d-flex justify-content-center mt-6 h-full">
+                    <div class="row">
+                        <div class="spinner-border row" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

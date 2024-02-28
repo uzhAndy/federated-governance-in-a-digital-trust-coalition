@@ -1,0 +1,12 @@
+:host{
+    flex-grow: 1;
+}
+
+.active {
+    background-color: rgb(60, 66, 72);
+}
+
+.navcard:hover {
+    background-color: rgb(47, 52, 57);
+    cursor: pointer;
+}

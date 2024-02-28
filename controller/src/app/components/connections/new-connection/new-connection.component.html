@@ -1,0 +1,40 @@
+<div class="container" style="padding-top: 32px;">
+    <form autocomplete="false">
+        <div class="row">
+            <div class="col-6">
+                <label for="alias">Connection alias</label>
+                <input id="alias" class="form-control" type="text" name="alias" [(ngModel)]="alias" />
+            </div>
+            <div class="col-6">
+                <label for="invitationUrl">Paste an invitation url to accept a connection:</label>
+                <input name="acceptInvitationUrl" type="text" class="form-control" id="acceptInvitationUrl"
+                    [(ngModel)]="acceptInvitationUrl">
+                <small *ngIf="error">Unable to process that URL:
+                    {{ error }}</small>
+            </div>
+
+        </div>
+        <div class="row pt-4">
+            <div class="col-6">
+                <button type="button" class="btn btn-primary btn-lg btn-block mb-3" (click)="createInvitation()"
+                    [disabled]="invitation">Create New Invitation</button>
+            </div>
+            <div class="col-6">
+                <button type="button" class="btn btn-primary btn-lg btn-block mb-3" (click)="acceptInvitation()">
+                    Accept Invitation
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div *ngIf="invitation" class="row">
+        <div class="col-6">
+            <div class="form-group">
+                <label>Scan the QR Code to accept the connection</label>
+                <div class="input-group">
+                    <qrcode [qrdata]="invitationUrl" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

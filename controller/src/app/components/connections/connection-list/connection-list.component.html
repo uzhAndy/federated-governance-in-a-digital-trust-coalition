@@ -1,0 +1,9 @@
+<div *ngIf="this.connections" class="container" style="padding-top: 24px;">
+    <div class="row">
+        <app-connection-card class="col-6" style="padding-bottom: 12px;" *ngFor="let connection of connections" [connection]="connection"
+            (remove)="onRemoveConnection($event)"></app-connection-card>
+
+    </div>
+</div>
+
+<app-empty-list *ngIf="!connections?.length"></app-empty-list>

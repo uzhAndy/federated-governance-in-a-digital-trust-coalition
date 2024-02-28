@@ -1,0 +1,81 @@
+version: '3'
+services:
+  wallet-db:
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=DB_USER
+      - POSTGRES_PASSWORD=DB_PASSWORD
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./wallet-db-data:/var/lib/pgsql/data
+    networks:
+      - dao-network
+
+  dao-aries-agent:
+    image: bcgovimages/aries-cloudagent:py3.9-indy-1.16.0_0.11.0rc2
+    command: >
+      start
+      --log-level "info"
+      --auto-respond-credential-offer
+      --auto-accept-invites
+      --auto-accept-requests
+      --auto-ping-connection
+      --admin 0.0.0.0 8038
+      --admin-insecure-mode
+      --genesis-url http://test.bcovrin.vonx.io/genesis
+      -e https://optimates.ch/dao-agent/
+      --label dao-aries-agent
+      --seed 72105a73ed62f5d85445f9b0dbb35476
+      --tails-server-base-url https://optimates.ch/tails-server
+      --auto-provision
+      --wallet-name dao_agent
+      --wallet-type "askar"
+      --wallet-key "key"
+      --wallet-storage-type "postgres_storage"
+      --wallet-storage-config "{\"url\":\"wallet-db:5432\",\"wallet_scheme\":\"MultiWalletSingleTable\"}"
+      --wallet-storage-creds "{\"account\":\"DB_USER\",\"password\":\"DB_PASSWORD\",\"admin_account\":\"DB_USER\",\"admin_password\":\"DB_PASSWORD\"}"
+      --webhook-url https://optimates.ch/api/agent-webhook
+      -it http 0.0.0.0 8880 -ot http
+    ports:
+      - "8880:8880"
+      - "8038:8038"
+    networks:
+      - dao-network
+
+  tails-server:
+    build:
+      context: ./../indy-tails-server/
+      dockerfile: ./../indy-tails-server/docker/Dockerfile.tails-server
+    ports:
+      - "6543:6543"
+    networks:
+      - dao-network
+    command: >
+      tails-server
+        --host 0.0.0.0
+        --port 6543
+        --storage-path /tmp/tails-files
+        --log-level INFO
+
+  nginx:
+    build:
+      context: ./../
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - tails-server
+      - dao-aries-agent
+    volumes:
+      - ./../controller:/usr/share/nginx/html
+    networks:
+      - dao-network
+
+volumes:
+  wallet-db-data:
+  controller:
+
+networks:
+  dao-network:
+    name: dao-network

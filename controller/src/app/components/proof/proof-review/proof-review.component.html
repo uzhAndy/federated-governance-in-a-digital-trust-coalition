@@ -1,0 +1,23 @@
+<div class="container">
+    <div class="card shadow-sm mt-4 mb-4" *ngIf="this.proof.state == this.STATE.REQUEST_SENT">
+        <app-proof-review-card-request-sent
+            
+            [connectionId]="this.proof.connection_id"
+            [role]="this.proof.role"
+            [state]="this.proof.state"
+            [updatedAt]="this.proof.updated_at"
+            [attributes]="this.proof.by_format.pres_request.indy.requested_attributes"
+            [verified]="this.proof.verified === 'true'"
+        />
+    </div>
+    <div class="card shadow-sm mt-4 mb-4" *ngIf="this.proof.state === this.STATE.DONE">
+        <app-proof-review-card-done 
+            [connectionId]="this.proof.connection_id"
+            [role]="this.proof.role"
+            [state]="this.proof.state"
+            [updatedAt]="this.proof.updated_at"
+            [attributes]="this.proof.by_format.pres.indy.requested_proof.revealed_attrs"
+            [verified]="this.proof.verified === 'true'" 
+        />
+    </div>
+</div>

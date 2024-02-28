@@ -1,0 +1,19 @@
+<div *ngIf="this.connections.length > 0 && this.credDefs.length > 0">
+    <div class="container px-4">
+        <div class="row pt-4">
+            <label for="connectionSelect">Connection:</label>
+            <select id="connectionSelect" name="connection" class="form-control"
+                [(ngModel)]="this.selectedConnectionId">
+                <option value="" disabled selected>Select the connection you want to request a proof presentation from
+                </option>
+                <option (click)="logg(connection.connection_id)" *ngFor="let connection of this.connections"
+                    value="{{connection.connection_id}}">{{connection.alias}} - {{connection.connection_id}}
+                </option>
+            </select>
+        </div>
+        <div class="row pt-4">
+            <app-proof-card *ngIf="this.selectedConnection" [connection]="this.selectedConnection"
+                [credDefIds]="this.credDefIdS" [credDefs]="this.credDefs" />
+        </div>
+    </div>
+</div>

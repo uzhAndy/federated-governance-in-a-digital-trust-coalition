@@ -1,0 +1,57 @@
+version: '3'
+services:
+  controller-db:
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=DB_USER
+      - POSTGRES_PASSWORD=DB_PASSWORD
+    ports:
+      - 5433:5432
+    volumes:
+      - controller-db-data:/var/lib/pgsql/data
+      - ./../scripts/controller-db:/docker-entrypoint-initdb.d
+    networks:
+      - dao-network
+  pgadmin:
+    image: dpage/pgadmin4:8.0
+    container_name: pgadmin
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_USERNAME: admin
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - dao-network
+
+  fast-api:
+    build: 
+      context: ../../lifecycle-api/
+    ports:
+      - 8000:8000
+    depends_on:
+      - controller-db
+    volumes:
+      - ./../lifecycle-api:/app/api/
+    networks:
+      - dao-network
+  
+  nginx:
+    build:
+      context: ./../..
+    ports:
+      - "80:80"
+    depends_on:
+      - dao-controller
+      - fast-api
+    networks:
+      - dao-network
+
+volumes:
+  wallet-db-data:
+  controller-db-data:
+
+networks:
+  dao-network:
+    name: dao-network
+    

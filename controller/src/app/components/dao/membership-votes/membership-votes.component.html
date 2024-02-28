@@ -1,0 +1,11 @@
+<div class="container mt-4">
+    <app-query-members />
+</div>
+<div class="container pt-4" style="padding-bottom: 56px;" *ngIf="this.applications.length > 0">
+    <div class="row mb-4">
+        <app-application *ngFor="let application of this.applications" [application]="application" />
+    </div>
+</div>
+<div class="mt-2 pt-4 pb-4">
+    <app-request-membership (newApplicationEvent)="this.addApplication($event)"/>
+</div>

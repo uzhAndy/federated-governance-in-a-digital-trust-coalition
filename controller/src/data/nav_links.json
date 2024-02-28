@@ -1,0 +1,27 @@
+[
+    {
+        "parentRoute": "",
+        "label": "Connections",
+        "url": "/connections",
+        "index": 0
+    },
+    {
+        "parentRoute": "",
+        "label": "Credentials",
+        "url": "/credentials",
+        "index": 1
+    },
+    {
+        "parentRoute": "",
+        "label": "Proof Requests",
+        "url": "/proof-requests",
+        "index": 2
+    },
+    {
+        "parentRoute": "",
+        "label": "TC Governance",
+        "url": "/dao",
+        "index": 3
+    }
+    
+]

@@ -1,0 +1,50 @@
+[
+    {
+        "parentRoute": "connections",
+        "label": "Create and Accept Connection",
+        "url": "new-connection",
+        "index": 0
+    },
+    {
+        "parentRoute": "connections",
+        "label": "Connections Overview",
+        "url": "my-connections",
+        "index": 1
+    },
+    {
+        "parentRoute": "credentials",
+        "label": "Issue Credentials",
+        "url": "issue-credentials",
+        "index": 0
+    },
+    {
+        "parentRoute": "credentials",
+        "label": "Review Credential Offers",
+        "url": "view-credentials",
+        "index": 1
+    },
+    {
+        "parentRoute": "credentials",
+        "label": "My Credentials",
+        "url": "my-credentials",
+        "index": 1
+    },
+    {
+        "parentRoute": "proof-requests",
+        "label": "Request Proof",
+        "url": "request-proof",
+        "index": 0
+    },
+    {
+        "parentRoute": "proof-requests",
+        "label": "View Past Proofs",
+        "url": "view-proof-requests",
+        "index": 1
+    },
+    {
+        "parentRoute": "dao",
+        "label": "Trust Coalition Governance",
+        "url": "membership-votes",
+        "index": 0
+    }
+]

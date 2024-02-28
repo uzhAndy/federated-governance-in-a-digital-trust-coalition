@@ -1,0 +1,12 @@
+input {
+    width: 90%;
+}
+
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/spinners";
+
+.invalid-field {
+    border: 1px solid red;
+}

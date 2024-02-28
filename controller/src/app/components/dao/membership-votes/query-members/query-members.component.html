@@ -1,0 +1,49 @@
+<div class="row mt-4">
+    <div class="col-3">
+        <label for="exampleInputEmail1" class="form-label float-end">Query Members</label>
+    </div>
+    <form class="col-7" [ngClass]="{'has-error': this.error}">
+        <input type="text" class="form-control" [(ngModel)]="this.searchTerm" name="searchTerm" (keydown)="this.handleKeyDown($event)"
+            placeholder="enter a domain to check if it is part of the trust coalition">
+        <small class="text-danger" *ngIf="this.error">{{this.error}}</small>
+    </form>
+    <div class="col-1">
+        <button type="button" class="btn btn-primary" (click)="this.queryForDomain()">Search</button>
+    </div>
+</div>
+<div class="card shadow-sm mt-4" *ngIf="this.company">
+    <div class="card-header">
+        Found {{this.displayTerm}} in the members list
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-4">Member:</div>
+            <div class="col-8">{{this.company.companyName}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Domain:</div>
+            <div class="col-8"> <a href="https://{{this.company.companyDomain}}"
+                    target="_blank">{{this.company.companyDomain}}</a></div>
+        </div>
+        <div class="row">
+            <div class="col-4">Credential Definition:</div>
+            <div class="col-8">
+                {{this.company.credentialDefinition}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">Contact Person:</div>
+            <div class="col-8">{{this.company.contactPersonFirstname | titlecase }} {{this.company.contactPersonLastname
+                | titlecase}}</div>
+        </div>
+        <div class="row">
+            <div class="col-4">Contact Mail:</div>
+            <div class="col-8"><a
+                    href="mailto:{{this.company.contactPersonEmail}}">{{this.company.contactPersonEmail}}</a></div>
+        </div>
+        <div class="row">
+            <div class="col-4">Wallet Address:</div>
+            <div class="col-8">{{this.company.walletAddress}}</div>
+        </div>
+    </div>
+</div>

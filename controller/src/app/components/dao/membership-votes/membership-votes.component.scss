@@ -1,0 +1,4 @@
+.container content {
+  min-height: 100vh; /* Ensure container takes at least the full viewport height */
+  overflow-y: auto; /* Add vertical scrollbar if needed */
+}

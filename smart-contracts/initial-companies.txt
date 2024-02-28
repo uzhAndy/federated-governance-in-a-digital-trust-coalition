@@ -1,0 +1,6 @@
+[["John", "Doe", "john.doe@nzz.ch", "NZZ AG", "News", "www.nzz.ch", "testCredDef", "0x634B97A38793Fb01F89aeE871c5FF563095458D0"],["Jane", "Doe", "jane.doe@tagesanzeiger.ch", "Tagesanzeiger AG", "News", "www.tagesanzeiger.ch", "testCredDef", "0xec94De28e3A62F177527905abfD6c44f8BaC904E"]]
+["Alice", "Lane", "john.doe@blick.ch", "Blick AG", "News", "www.blick.ch", "my credentials definition", "0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db"]
+
+[ "Andy","Aidoo", "admin@optimates.ch", "OptiMates", "optimates.ch", "H2Et98P5cMcr4B3Uma951x:3:CL:257125:employee standard registration", "0x5f2e7530205D102b6546B3783b1A35C973EC4ea9"]
+
+[["John", "Doe", "john.doe@nzz.ch", "NZZ AG", "News", "www.nzz.ch", "testCredDef", "0x583031D1113aD414F02576BD6afaBfb302140225"],["Jane", "Doe", "jane.doe@tagesanzeiger.ch", "Tagesanzeiger AG", "News", "www.tagesanzeiger.ch", "testCredDef", "0xdD870fA1b7C4700F2BD7f44238821C26f7392148"]]

@@ -1,0 +1,11 @@
+<div class="container">
+    <div class="row">
+        <div class="col pt-2 pb-2">
+            <a class="nav-item nav-link" routerLink="/" routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }">Home</a>
+        </div>
+        <div *ngFor="let lnk of this.componentLinks" class="col pb-2 pt-2 text-center" routerLinkActive="active">
+            <a  class="nav-item nav-link" [routerLink]="lnk.url">{{ lnk.label }}</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+<div *ngIf="this.credDefs.length > 0">
+    <!-- <h3>Proofs with Connections</h3> -->
+    <div class="card shadow-sm mt-4 mb-4">
+        <div class="card-body">
+            <div class="row">
+                <small class="col-4">Connection</small>
+                <strong class="col-6">{{this.connection.alias}}</strong>
+            </div>
+            <div class="row">
+                <small class="col-4">Their DID</small>
+                <strong class="col-6">{{this.connection.their_did}}</strong>
+            </div>
+            <div class="row pb-4" *ngFor="let credDef of this.credDefs">
+                <h5>Schema Attributes {{credDef.tag}}</h5>
+                <div class="row">
+                    <div class="col-10">
+                        <div class="row">
+                            <div class="col-3">Include</div>
+                            <div class="col-8">Name</div>
+                        </div>
+                        <div class="row" *ngFor="let att of credDef.value.primary.r | keyvalue">
+                            <div class="col-3"><input name="{{att.key}}" type="checkbox" class="checkbox"
+                                    (click)="handleClick(att.key, credDef.id)"></div>
+                            <div class="col-8">{{att.key}}</div>
+                        </div>
+                    </div>
+                    <div class="col-2 mt-auto">
+                        <button type="button" class="btn btn-primary float-end"
+                            (click)='handleProofRequest("demo proof", connection.connection_id)'>Request Proof</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

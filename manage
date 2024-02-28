@@ -1,0 +1,295 @@
+#!/bin/bash
+
+ENV_FILE=".env"
+
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+function usage(){
+    echo "Description:"
+    echo "  This script provides commands to manage and interact with a Hyperledger Indy environment."
+
+    echo -e "\nUsage:"
+    echo "  ./manage build"
+    echo "    - Run the build command after the initial download."
+
+    echo -e "\n  ./manage provision"
+    echo "    - Register seed on Hyperledger Indy."
+    echo "    - Start all Docker containers."
+    echo "    - Register schemas and credential definitions on Hyperledger Indy."
+    echo "        1. standard credentials attributes:"
+    echo "               + sub"
+    echo "               + family_name"
+    echo "               + given_name"
+    echo "               + name"
+    echo "               + email"
+    echo "               + updated_at"
+    echo "               + employee_id"
+    echo "               + department"
+    echo "               + role"
+    echo "               "
+    echo "        2. controller user attributes: "
+    echo "               + first_name "
+    echo "               + last_name "
+    echo "               + employee_id "
+    echo "               + role"
+    echo ""
+    echo "    - Ngrok tunnels to agent."
+
+    echo -e "\n  ./manage start"
+    echo "    - Start all Docker containers (requires provision to have been run before)."
+    echo "    - Ngrok tunnels to agent."
+
+    echo -e "\n  ./manage stop"
+    echo "    - Kill ngrok tunnel and stop all active Docker containers."
+}
+
+function run_external_service(){
+    bash_script_full_path=$2
+    if test -f "$bash_script_full_path"; then
+        echo "Starting $3 script for $1"
+        bash_script_folder=$(dirname "$bash_script_full_path")
+        bash_script_filename=$(basename "$bash_script_full_path")
+        cd "$bash_script_folder"
+        source $bash_script_filename $3
+        echo "Finished running $3 script for $1"
+        cd "${base_dir}"
+    else
+        echo "$1 start file not found. Consult README.md"
+        exit 1
+    fi
+}
+
+function extract_all_ngrok_tunnels() {
+    local max_attempts=30
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+    echo "try ${attempt}"
+        ngrok_tails=$(curl -s http://localhost:4040/api/tunnels)
+        
+        tunnels_count=$(echo "$ngrok_tails" | jq -r ".tunnels | length")
+
+
+        if [[ "$tunnels_count" =~ ^[0-9]+$ ]] &&  [ "$tunnels_count" -ge 1 ]; then
+            echo "ngrok has started"
+            DAO_AGENT_TUNNEL_URL=$(echo "$ngrok_tails" | jq -r ".tunnels[] | select(.name == \"dao-agent\") | .public_url")
+            echo "ngrok tails server up"
+            TAILS_TUNNEL_URL=$(echo "$ngrok_tails" | jq -r ".tunnels[] | select(.name == \"tails-server\") | .public_url")
+            echo ${TAILS_TUNNEL_URL}
+            break
+        fi
+        if [ -n "${TAILS_TUNNEL_URL}" ] && [ -n "${DAO_AGENT_TUNNEL_URL}" ]; then
+            return 0
+        fi
+        echo "Waiting for ngrok to start... Attempt ${attempt}/${max_attempts}"
+        sleep 5
+        attempt=$((attempt + 1))
+    done
+  echo "Timed out waiting for ngrok to start."
+  return 1
+}
+
+function start_ngrok(){
+    echo "Starting ngrok tunnels"
+
+    if ! command_exists "jq"; then
+        echo "Error: jq is not installed. Consult the README.md"
+    fi
+
+    if ! command_exists "ngrok"; then
+        echo "Error: ngrok is not installed. Consult the README.md"
+    fi
+
+    ngrok start --all --config ngrok.yml > /dev/null &
+    extract_all_ngrok_tunnels
+    echo "DAO Agent Tunnel URL: ${DAO_AGENT_TUNNEL_URL}"
+}
+
+function start_containers() {
+    local container_full_path=$2
+    if test -f "$container_full_path"; then
+        echo "Starting $1"
+        docker-compose -f ${container_full_path} up -d
+    else
+        echo "$1 file not found. Consult README.md"
+        exit 1
+    fi
+}
+
+function validate_cli_options(){
+    if [ -z "${tails_server}" ]; then
+        echo "Usage: $0 --tails-server <value2>"
+        echo "Error: --tails-server is a mandatory options."
+        exit 1
+    fi
+}
+
+function register_seed(){
+    echo "Registering Seed on: ${INDY_URL} Alias: $2 SEED: $1"
+    curl -X POST "${INDY_URL}/register" -H 'accept: application/json' -H 'Content-Type: application/json' -d "{\"alias\":\"${2}\",\"seed\":\"${1}\",\"role\":\"TRUST_ANCHOR\"}"
+    
+}
+
+function registerSchemas() {
+    echo "Registering Schemas"
+    SCHEMA_VERSION="1.0"
+    SCHEMA_NAME="standard-claims"
+    
+        curl -s -f -X POST "http://127.0.0.1:8038/schemas" \
+            -H  "accept: application/json" \
+            -H  "Content-Type: application/json" \
+            -d "{ \
+                \"schema_name\": \"${SCHEMA_NAME}\", \
+                \"schema_version\": \"${SCHEMA_VERSION}\", \
+                \"attributes\": [\"sub\", \"family_name\", \"given_name\", \"name\", \"email\", \"updated_at\", \"employee_id\", \"department\", \"role\"]}" \
+        | jq -r ".schema_id"
+    
+    SCHEMA_NAME_USER="controller-user"
+    
+        curl -s -f -X POST "http://127.0.0.1:8038/schemas" \
+            -H  "accept: application/json" \
+            -H  "Content-Type: application/json" \
+            -d "{\"schema_name\": \"${SCHEMA_NAME_USER}\", \"schema_version\": \"${SCHEMA_VERSION}\", \"attributes\": [\"first_name\", \"last_name\", \"employee_id\", \"role\"]}" \
+        | jq -r ".schema_id"
+}
+
+function registerCredentialDefinitions() {
+    if [  -z "$schema_id" ]; then
+        schema_id=$(
+            curl -s -X GET "http://127.0.0.1:8038/schemas/created" \
+                -H "accept: application/json" \
+            | jq -r ".schema_ids[] | select(. | split(\":\")[2] == \"${SCHEMA_NAME}\" and split(\":\")[3] == \"${SCHEMA_VERSION}\")"
+        )
+    fi
+    if [  -z "$schema_id_user" ]; then
+        schema_id_user=$(
+            curl -s -X GET "http://127.0.0.1:8038/schemas/created" \
+                -H "accept: application/json" \
+            | jq -r ".schema_ids[] | select(. | split(\":\")[2] == \"$SCHEMA_NAME_USER\" and split(\":\")[3] == \"${SCHEMA_VERSION}\")"
+        )
+    fi
+    curl -s -f -X POST "http://127.0.0.1:8038/credential-definitions" \
+        -H "accept: application/json" \
+        -H "Content-Type: application/json" \
+        -d "{ \
+                \"tag\": \"employee standard registration\", \
+                \"schema_id\": \"$schema_id\", \
+                \"support_revocation\": true, \
+                \"revocation_registry_size\": 100\
+            }"
+    
+    curl -s -f -X POST "http://127.0.0.1:8038/credential-definitions" \
+        -H "accept: application/json" \
+        -H "Content-Type: application/json" \
+        -d "{ \
+                \"tag\": \"controller user registration\", \
+                \"schema_id\": \"$schema_id_user\", \
+                \"support_revocation\": true, \
+                \"revocation_registry_size\": 100 \
+            }"
+}
+
+function credentialsRegistration() {
+    registerSchemas
+    registerCredentialDefinitions
+}
+
+function start_services() {
+
+    INDY_URL="http://test.bcovrin.vonx.io"
+    register_seed_needed="$1"
+
+    start_ngrok
+
+    if [ ${register_seed_needed} = "true" ]; then
+        DAO_SEED=$(openssl rand -hex 16)
+        register_seed ${DAO_SEED} DAO-Agent-tttttt
+            # Check if SEED variable is defined in .env
+        if grep -q '^SEED=' "${ENV_FILE}"; then
+            # Replace the value of SEED variable
+            sed -i "s/^DAO_SEED=.*/DAO_SEED=${DAO_SEED}/" "${ENV_FILE}"
+            echo "DAO SEED variable updated with ${DAO_SEED}"
+        else
+            # SEED variable is not defined, add it to the file
+            echo "DAO_SEED=${DAO_SEED}" >> "${ENV_FILE}"
+            echo "DAO SEED variable added to .env"
+        fi
+    else
+        DAO_SEED=$(grep "DAO_SEED=" "${ENV_FILE}" | sed 's/^DAO_SEED=//')
+    fi
+
+    echo "DAO_SEED=${DAO_SEED}"
+
+    export TAILS_SERVER_URL=${TAILS_TUNNEL_URL}
+    echo "TAILS_SERVER_URL=${TAILS_TUNNEL_URL}"
+    export INDY_URL=${INDY_URL}
+    export GENESIS_URL=${INDY_URL}/genesis
+    export "LOG_LEVEL=INFO"
+    export "STORAGE_PATH=/tmp/tails-files"
+    export DAO_AGENT_TUNNEL_URL=${DAO_AGENT_TUNNEL_URL}
+    export DAO_SEED=${DAO_SEED}
+    export USER_CRED_DEF=${schema_id_user}
+
+    start_containers "DEVELOPMENT" "docker/dev/docker-compose.yml"
+    
+    if [ ${register_seed_needed} = "true" ]; then
+        # TODO clean up this ugly fix agents need to be running, before registering the schema
+        sleep 10
+        credentialsRegistration
+    fi
+}
+
+function build_services(){
+    #TODO ng build in controller/
+    cd controller/
+    npm install --force
+    ng build
+    cd ..
+    docker-compose -f "docker/dev/docker-compose.yml" build
+}
+
+function shutdown_ngrok(){
+    ngrok_pid=$(top -b -n 1 | grep "ngrok" | awk '{print $1}')
+
+    if [[ -n "$ngrok_pid" && "$ngrok_pid" =~ ^[0-9]+$ ]]; then
+        echo "Killing ngrok process with PID: $ngrok_pid"
+        kill -9 "$ngrok_pid"
+        echo "Ngrok process killed."
+    else
+        echo "Ngrok process not found."
+    fi
+}
+
+function shutdown_docker_container(){
+    echo "Shutting down all docker container"
+    docker kill $(docker ps -q)
+    echo "Shut down all docker container"
+}
+
+function shutdown_services(){
+    shutdown_ngrok
+    shutdown_docker_container
+}
+
+COMMAND=${1}
+shift || COMMAND=usage
+
+case "${COMMAND}" in
+    build)
+        build_services
+        ;;
+    start)
+        start_services false
+        ;;
+    provision)
+        start_services true
+        ;;
+    stop)
+        shutdown_services
+        ;;
+    *)
+        usage
+        ;;
+esac

@@ -1,0 +1,44 @@
+<div class="container">
+    <h2 class="text-center" style="padding-top: 64px;">Login Required</h2>
+    <div *ngIf="invitation" class="row">
+        <div class="text-center">you need to login</div>
+        <div class="d-flex justify-content-center">
+            <div class="row">
+                <div class="d-flex justify-content-center">
+                    <qrcode [qrdata]="invitationUrl" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <label>Scan QR Code</label>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="this.connectionEstablished">
+            <div class="d-flex justify-content-center pt-4 pb-4">
+                <div class="spinner-border row " role="status">
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="alert alert-primary">
+                    Connection established - Answer the proof presentation request in your mobile application.
+                </div>
+            </div>
+        </div>
+        <div *ngIf="this.proofReceived">
+            <div class="d-flex justify-content-center pt-4 pb-4">
+                <div class="spinner-border row" role="status">
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="alert alert-primary">
+                    Proof received - validating proof and authorizing user
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center pt-4" *ngIf="this.validatedProof">
+            <div class="alert alert-success" role="alert">Authorization Successful</div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center pt-4" *ngIf="this.authenticationFailed">
+        <div class="alert alert-danger" role="alert">Authentication Failed</div>
+    </div>
+</div>

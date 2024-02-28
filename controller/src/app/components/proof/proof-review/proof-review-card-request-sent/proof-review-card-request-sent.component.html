@@ -1,0 +1,25 @@
+<h3>{{this.state}}</h3>
+<div class="row pl-12">
+    <p class="col-4">Connection</p>
+    <p class="col-6">{{this.connectionId}}</p>
+</div>
+<div class="row">
+    <p class="col-4">Role</p>
+    <p class="col-6">{{this.role}}</p>
+</div>
+<div class="row">
+    <p class="col-4">State</p>
+    <p class="col-6">{{this.state}}</p>
+</div>
+<div class="row">
+    <p class="col-4">Response Timestamp</p>
+    <p class="col-6">{{this.updatedAt}}</p>
+</div>
+<div class="row">
+    <div class="col-3"><strong>Schema</strong></div>
+    <div class="col-3"><strong>Attribute</strong></div>
+</div>
+<div class="row pb-4" *ngFor="let cred of this.attributes | keyvalue">
+    <div class="col-3">{{cred.key.split(":")[0]}}</div>
+    <div class="col-3">{{cred.key.split(":")[1]}}</div>
+</div>
