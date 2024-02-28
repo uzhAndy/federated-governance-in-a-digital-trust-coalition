@@ -175,7 +175,5 @@ It holds the private key of the public key that is associated with the generated
 After a seed has been created by the `provision` command, the TCA instance can be restarted with `./manage start`
 
 ### System Shutdown
-ATTENTION: Shuts down ALL running Docker containers
-
 To shut the software system down, use the `./manage stop`.
 This script kills the ngrok tunnels that have been setup to allow for the usage of the BC Wallet and terminates all active Docker containers.
