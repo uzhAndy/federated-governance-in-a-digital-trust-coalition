@@ -131,6 +131,7 @@ Before running an instance of a TCA, make sure that you have the following prere
 |-|-|
 | git 
 | ngrok
+| jq
 | Angular CLI
 | npm
 | Pipenv
@@ -139,7 +140,7 @@ Before running an instance of a TCA, make sure that you have the following prere
 
 Clone the repository and its submodules with:
 ```
-$: git clone git@github.com:uzhAndy/fed-gov-ddos-data-mesh.git
+$: git clone git@github.com:uzhAndy/federated-governance-in-a-digital-trust-coalition.git
 ```
 You should receive the following directory structure: 
 ```
