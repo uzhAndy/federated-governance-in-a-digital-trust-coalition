@@ -1,7 +1,7 @@
 # Federated Governance for Decentralized Data-oriented Architectures
 Welcome to the GitHub repository of my Master's Thesis.
 This repository includes all the code written for the prototype *Trust Coalition Agent* (TCA), a decentralized data-oriented software system for federated governance based on decentralized identifiers (DID) and verifiable credentials (VC).
-A running version can be found on [optimates.ch](https://optimates.ch).
+~A running version can be found on [optimates.ch](https://optimates.ch).~
 
 ```
 "...trust architects had a vision: a 'trust layer' for the Internet could be achieved by following the same architecture as the Internet."
